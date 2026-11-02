@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-
 import "dotenv/config";
 
 import connectToMongo from "./src/config/mongo.config.js";
@@ -12,20 +11,27 @@ import rateLimiter from "./src/middleware/ratelimiter.js";
 
 const app = express();
 app.set("trust proxy", 1);
+
+const clientUrls = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((url) => url.trim().replace(/\/$/, ""))
+  .filter(Boolean);
+
 const allowedOrigins = [
-  "https://shawty-url.vercel.app",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://localhost:3000",
-  process.env.CLIENT_URL,
-].filter(Boolean);
+  ...clientUrls,
+];
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== "production") {
+    if (!origin) return callback(null, true);
+    const cleanOrigin = origin.replace(/\/$/, "");
+    if (allowedOrigins.includes(cleanOrigin) || process.env.NODE_ENV !== "production") {
       return callback(null, true);
     }
-    return callback(new Error("Not allowed by CORS"));
+    return callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -43,12 +49,10 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "Healthy",
-    instance: process.env.INSTANCE_NAME || "Local-Server",
+    instance: process.env.INSTANCE_NAME || "Render-Server",
     timestamp: new Date().toISOString()
   });
 });
-
-
 
 app.get("/", (req, res) => {
   const url = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
@@ -65,16 +69,17 @@ app.use("/auth", rateLimiter(10, 60), authRouter);
 app.use("/api/", rateLimiter(10, 60), getAllRouter);
 
 const PORT = process.env.PORT || 3000;
+
 const startServer = async () => {
   try {
     await connectToMongo();
     await connectToRedis();
 
     app.listen(PORT, "0.0.0.0", () => {
-      console.log(`${process.env.INSTANCE_NAME || "Local-Server"} running on ${PORT}`);
+      console.log(`Server (${process.env.INSTANCE_NAME || "Render-Server"}) running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Server startup failed:", error);
+    console.error("Server startup failed:", error.message || error);
     process.exit(1);
   }
 };

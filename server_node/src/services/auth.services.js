@@ -1,5 +1,5 @@
 import { findUserByEmail, createUser } from '../dao/user.dao.js';
-import { signToken } from '../utils/solver.js';
+import { signToken } from '../utils/Solver.js';
 import bcrypt from 'bcrypt';
 
 export const registerUser = async (userData) => {

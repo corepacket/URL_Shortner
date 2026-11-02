@@ -1,5 +1,5 @@
 import { getUrlfromDb, updateClicks } from "../dao/shortQuery.dao.js";
-import { normalizeOriginalUrl } from "../utils/solver.js";
+import { normalizeOriginalUrl } from "../utils/Solver.js";
 import { redisClient } from "../cache/redisClient.js";
 
 export const shortQueryController = async (req, res) => {

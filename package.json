@@ -1,0 +1,27 @@
+{
+  "name": "url-shortener-app",
+  "version": "1.0.0",
+  "description": "URL Shortener Full Stack Application",
+  "main": "server_node/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server_node/index.js",
+    "build": "npm --prefix server_node install",
+    "start:server": "npm --prefix server_node start",
+    "start:client": "npm --prefix client dev"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.15.1",
+    "nanoid": "^5.1.5",
+    "nodemon": "^3.1.10",
+    "redis": "^5.5.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
